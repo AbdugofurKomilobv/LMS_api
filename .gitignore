@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Django migrations
+*/migrations/
+!*/migrations/__init__.py
+
+# Virtual environment
+venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database
+*.sqlite3
+
+# VS Code (agar VS Code ishlatsang)
+.vscode/
+
+# Env files
+.env
+
+# Compiled files
+*.log
+*.pot
+*.mo
+
+# Media and static (agar version-control qilish shart bo'lmasa)
+media/
+static/
+
+# Coverage & testing
+htmlcov/
+.coverage
+.tox/
+.cache/
+
+# Pytest
+.pytest_cache/
