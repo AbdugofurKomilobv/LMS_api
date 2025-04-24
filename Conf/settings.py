@@ -28,10 +28,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # packages 
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_yasg',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
+    'django_extensions',
+    'rest_framework_simplejwt.token_blacklist',
      
     #  local apps
     'user_app',
     'common_app',
+    'courses_app',
+
+    
 
 ]
 
