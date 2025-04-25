@@ -10,7 +10,7 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 # Oddiy (non-model) serializer yaratilyapti, u bir nechta group idlarini olish uchun ishlatiladi.
-class GetGroupByIdSerializer(serializers.Serializer):
+class GetGroupByIdsSerializer(serializers.Serializer):
      # group_ids — bu ListField, ya'ni ro'yxat shaklidagi maydon.
     # Har bir element ro'yxatda albatta butun son (IntegerField) bo'lishi kerak.
     # Misol: {"group_ids": [1, 2, 3]}
