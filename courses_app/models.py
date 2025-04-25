@@ -20,6 +20,19 @@ class Course(BaseModel):
 
 # ============================================
 
+class Subject(BaseModel):
+    title = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = 'Subject'
+        verbose_name_plural = 'Subjects'
+
+# ======================================================
+
 # Jadval turi modeli
 class TableType(BaseModel):
     title = models.CharField(max_length=50)
@@ -58,7 +71,8 @@ class Table(BaseModel):
 
 class Group(BaseModel):
     title = models.CharField(max_length=100)
-    teacher = models.ManyToManyField(Teacher,related_name='groups',null=True,blank=True)
+    teacher = models.ManyToManyField("user_app.Teacher",related_name='groups',null=True,blank=True)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='groups')
     active = models.BooleanField(default=True)
     description = models.TextField(null=True,blank=True)
     table = models.ForeignKey('Table',on_delete=models.SET_NULL,null=True,blank=True,related_name='groups')

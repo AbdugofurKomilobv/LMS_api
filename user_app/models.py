@@ -52,7 +52,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     update = models.DateTimeField(auto_now=True)    
 
     username = None
-    USERNAMR_FIELD = 'phone'
+    USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = []
 
 
