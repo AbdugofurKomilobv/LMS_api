@@ -1,12 +1,12 @@
 from rest_framework.permissions import BasePermission
-
+from rest_framework.exceptions import PermissionDenied
 
 
 # Faqat admin yoki staff foydalanuvchilar kirishi mumkin bo'lgan permission klass
 class AdminUser(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
-            return False
+            raise PermissionDenied(detail="Sizda bu amalni bajarish huquqi yo'q.")
         return request.user.is_authenticated and request.user.is_admin or request.user.is_staff
     
 
@@ -19,7 +19,7 @@ class AdminUser(BasePermission):
 class AdminOrTeacher(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
-            return False
+            raise PermissionDenied(detail="Sizda bu amalni bajarish huquqi yo'q.")
         return request.user.is_authenticated and (request.user.is_staff or request.user.is_teacher or request.user.is_admin)
     
 
@@ -29,7 +29,7 @@ class AdminOrTeacher(BasePermission):
 class AdminOrStudent(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
-            return False
+            raise PermissionDenied(detail="Sizda bu amalni bajarish huquqi yo'q.")
         return request.user.is_authenticated and (request.user.is_admin or request.user.is_student or request.user.is_staff)
 
 
@@ -42,5 +42,5 @@ class AdminOrStudent(BasePermission):
 class AdminOrOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated:
-            return False
+            raise PermissionDenied(detail="Sizda bu amalni bajarish huquqi yo'q.")
         return request.user.is_authenticated and (obj.user == request.user or request.user.is_staff or request.user.is_admin)
