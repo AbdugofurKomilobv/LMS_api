@@ -59,5 +59,25 @@ class SuperUserSerializer(serializers.ModelSerializer):
 
     def create(self,validates_data):
         return User.objects.create_superuser(**validates_data)
+    
+# ===================================================
+
+
+class GetStudentByIdSerializer(serializers.Serializer):
+    student_ids = serializers.ListField(child = serializers.IntegerField())
+
+
+class GetTeachersByIdsSerializer(serializers.Serializer):
+    teacher_ids = serializers.ListField(child=serializers.IntegerField())
+
+
+class  UserAdndeacherserializer(serializers.Serializer):
+    user = UserSerializer()
+    teacher = TeacherSerializer()
+
+class UserAndStudentSerializer(serializers.Serializer):
+    user = UserSerializer()
+    student = StudentSerializer()
+    parent = ParentSerializer()
 
 
