@@ -52,7 +52,15 @@ urlpatterns = [
    # table jadval uchun api
    path('table/',include('table_url.table_urls',namespace='table')),
    # homevork uchun api
-   path('homeworks/',include('homevork_url.homevork_urls',namespace='homevork'))
+   path('homeworks/',include('homevork_url.homevork_urls',namespace='homevork')),
+
+
+   # attendances api
+   path('attendances/',include('attendance_app.urls',namespace='attendances')),
+
+   # user_app
+   path('user/',include('user_app.urls',namespace='user'))
+
 
 ]
 

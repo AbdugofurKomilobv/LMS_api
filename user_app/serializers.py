@@ -71,7 +71,7 @@ class GetTeachersByIdsSerializer(serializers.Serializer):
     teacher_ids = serializers.ListField(child=serializers.IntegerField())
 
 
-class  UserAdndeacherserializer(serializers.Serializer):
+class  UserAndTeacherserializer(serializers.Serializer):
     user = UserSerializer()
     teacher = TeacherSerializer()
 
