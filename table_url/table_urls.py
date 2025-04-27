@@ -1,4 +1,4 @@
-
+from os.path import basename
 
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
@@ -10,8 +10,12 @@ app_name = 'courses'
 
 router = DefaultRouter()
 
-router.register(r'courses',CourseViewSet, basename='courses')
+
+router.register(r'table',TableViewSet, basename='table')
+
+
 
 urlpatterns = [
     path('', include(router.urls)),
+
 ]

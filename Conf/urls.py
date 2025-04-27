@@ -28,7 +28,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/courses/',include('courses_app.urls',namespace='courses')),
 
 
     # swagger
@@ -42,6 +41,19 @@ urlpatterns = [
        # Boshqa URL'lar
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+
+   #  course uchun api
+    path('courses/',include('courses_app.urls',namespace='courses')),
+   # gurux uchun api
+    path('group/', include('Group_urls.group_urls', namespace='group')),
+   #  subject uchun api
+   path('subject/',include('subject_urls.subject_url',namespace='subject')),
+   # table jadval uchun api
+   path('table/',include('table_url.table_urls',namespace='table')),
+   # homevork uchun api
+   path('homeworks/',include('homevork_url.homevork_urls',namespace='homevork'))
+
 ]
 
 if settings.DEBUG:
