@@ -128,7 +128,7 @@ STATIC_URL = '/static/'
 
 # Development uchun (lokal mashinada ishlashda)
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # loyihangizdagi 'static' papkasi
+    BASE_DIR / "static",  # static fayllar uchun joy
 ]
 
 # Production uchun

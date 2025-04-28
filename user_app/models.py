@@ -73,9 +73,9 @@ class User(AbstractBaseUser,PermissionsMixin):
 # O'quvchilar modeli
 class Student(BaseModel):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    group = models.ManyToManyField('courses_app.Group',related_name='group_student',null=True,blank=True)
+    group = models.ManyToManyField('courses_app.Group',related_name='group_student',blank=True)
     course = models.ManyToManyField('courses_app.Course',related_name='course_student')
-    description = models.TextField(blank=True,null=True)
+    description = models.TextField(blank=True)
 
 
     def __str__(self):
@@ -91,7 +91,7 @@ class Student(BaseModel):
 # Ustoz modeli 
 class Teacher(BaseModel):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    description = models.TextField(blank=True,null=True)
+    description = models.TextField(blank=True)
     course = models.ManyToManyField('courses_app.Course',related_name='c_teacher')
 
 
