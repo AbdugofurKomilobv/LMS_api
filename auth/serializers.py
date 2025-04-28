@@ -13,7 +13,7 @@ class LoginSerializer(serializers.ModelSerializer):
 class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id','full_name','phone',)
+        fields = ('id','full_name','phone')
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True)

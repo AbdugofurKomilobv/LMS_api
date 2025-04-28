@@ -70,15 +70,75 @@ class CurrentUserView(RetrieveAPIView):
     def get_object(self):
         return self.request.user  # Bu tizimga kirgan foydalanuvchini qaytaradi
 
-class CheckUserAuthenticationView(APIView):
+
+        
+
+class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        if request.user.is_authenticated:
-            # Tizimga kirgan foydalanuvchi
-            return Response({"message": "Foydalanuvchi tizimga kirgan",'user':request.user.full_name}, status=200)
-        else:
-            # Tizimga kirmagan foydalanuvchi
-            return Response({"message": "Foydalanuvchi tizimga kirmagan"}, status=200)
+    @swagger_auto_schema(request_body=ChangePasswordSerializer)
+    def post(self,request):
+        serializer = ChangePasswordSerializer(data = request.data)
+        if serializer.is_valid():
+            user = request.user
+            if not user.check_password(serializer.validated_data['old_password']):
+                return Response({'status': False, 'detail':'Eski parol xato'},status=400)
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+
+            return Response({'status':True,'detail':'Parolingiz muaffaqiyatli yangilandi!'},status=200)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+
+
+class ResetPasswordView(APIView):
+    @swagger_auto_schema(request_body=ResetPasswordSerializer)
+    def post(self,request):
+        serializer = ResetPasswordSerializer(data = request.data)
+        if serializer.is_valid():
+            phone = serializer.validated_data['phone']
+            user = User.objects.filter(phone=phone)
+
+            if user:
+                otp_code = str(randint(1000,9999))
+                print('Otp code:', otp_code)
+                cache.set(phone,otp_code,timeout=900)
+
+                return Response({"status": True, "detail": "OTP muvaffaqiyatli yuborildi"}, status=status.HTTP_200_OK)
+            return Response({"status": False, "detail": "Bunday telefon raqam mavjud emas"},
+                            status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class VerifyOTPView(APIView):
+    @swagger_auto_schema(request_body=VerifyOTPSerializer)
+    def post(self,request):
+        serializer = VerifyOTPSerializer(data = request.data)
+        if serializer.is_valid():
+            phone = serializer.validated_data['phone']
+            cache.set(f'verified_{phone}', True,timeout=900)
+            return Response({"status": True, "detail": "OTP muvaffaqiyatli tasdiqlandi"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SetNewPasswordView(APIView):
+    @swagger_auto_schema(request_body=SetNewPasswordSerializer)
+    def post(self,request):
+        serializer = SetNewPasswordSerializer(data = request.data)
+        if serializer.is_valid():
+            phone = serializer.validated_data['phone']
+            verifed = cache.get(f'verified_{phone}')
+
+            if not verifed:
+                return Response({"status": False, "detail": "OTP tasdiqlanmagan"}, status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.filter(phone=phone).first()
+            if user:
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                return Response({"status": True, "detail": "Parol muvaffaqiyatli o‘rnatildi"}, status=status.HTTP_200_OK)
+            return Response({"status": False, "detail": "Foydalanuvchi topilmadi"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+            
+
+
+
 
