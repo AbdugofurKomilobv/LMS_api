@@ -59,8 +59,10 @@ urlpatterns = [
    path('attendances/',include('attendance_app.urls',namespace='attendances')),
 
    # user_app
-   path('user/',include('user_app.urls',namespace='user'))
+   path('user/',include('user_app.urls',namespace='user')),
 
+   # auth
+   path('auth/',include('auth.urls',namespace='auth'))
 
 ]
 
