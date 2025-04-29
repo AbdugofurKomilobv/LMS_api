@@ -25,20 +25,23 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TeacherSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only = True)
+   
+   
     class Meta:
         model = Teacher
-        fields = ('id','user',"cource",'description')
+        fields = ('id','user',"course",'description')
 
-
+    
 
 # ======================================================================
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    full_name = serializers.CharField(source='user.full_name', read_only=True)
+    student_id = serializers.CharField(source='user.student_id', read_only=True)
     class Meta:
         model = Student
-        fields = ('id','user','group', 'cource', 'description')
+        fields = ('id','full_name','student_id','group', 'course', 'description')
 
 
 class ParentSerializer(serializers.ModelSerializer):

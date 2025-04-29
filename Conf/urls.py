@@ -35,7 +35,7 @@ urlpatterns = [
    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     
-
+   
 
    #  token
        # Boshqa URL'lar
@@ -62,7 +62,12 @@ urlpatterns = [
    path('user/',include('user_app.urls',namespace='user')),
 
    # auth
-   path('auth/',include('auth.urls',namespace='auth'))
+   path('auth/',include('auth.urls',namespace='auth')),
+
+#     Teacher
+    path('teacher/',include('teacher_url.teacher_urls'))
+
+
 
 ]
 
