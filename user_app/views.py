@@ -194,3 +194,79 @@ class TeacherGroupDetailAPIView(APIView):
 
 
 
+# Student
+# barcha studentlarni korish
+class StudentListView(ListAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    pagination_class = Pagination
+    permission_classes = [AdminUser]
+
+# studentn malumotlarini yangilash
+class StudentUpdateView(UpdateAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    lookup_field = 'id'
+    permission_classes = [AdminUser]
+
+# studentni id boyicha olish
+class StudentRetrieveAPIView(RetrieveAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    lookup_field = 'id'
+    permission_classes = [AdminOrOwner]
+
+# student idlariga qarab studentlarni oladi
+class GetStudenstByIds(APIView):
+    permission_classes = [AdminUser]
+    @swagger_auto_schema(request_body=GetStudentByIdSerializer)
+    def post(self,request):
+        student_ids = request.data.get('student_ids',[])
+
+        if not student_ids or not isinstance(student_ids,list):
+            return Response({"error": "student_ids ro‘yxati bo‘lishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        student = Student.objects.filter(id__in = student_ids)
+        serializer = StudentSerializer(student,many=True)
+
+        return Response({"students": serializer.data}, status=status.HTTP_200_OK)
+
+
+# Student yaratish
+class CreateStudentAPIView(APIView):
+    permission_classes = [AdminUser]
+
+    @swagger_auto_schema(request_body=UserAndStudentSerializer)
+    def post(self,request):
+        user_data = request.data.get('user',{})
+        user_serializer = UserSerializer(data=user_data)
+
+        if user_serializer.is_valid():
+            user = user_serializer.save(is_student = True)
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+        student_data = request.data.get('student',{})
+        student_serializer = StudentSerializer(data=student_data)
+
+        if student_serializer.is_valid():
+            phone = user_data.get('phone')
+            user_s = User.objects.get(phone=phone)
+            student_serializer.validated_data['user'] = user_s
+            student = student_serializer.save()
+        else:
+            user.delete()
+            return Response(student_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+        parent_data = request.data.get('parent', {})
+        parent_serializer = ParentSerializer(data=parent_data)
+
+        if parent_serializer.is_valid():
+            parent = parent_serializer.save()
+            parent.students.add(student)
+            return Response(parent_serializer.data, status=status.HTTP_201_CREATED)
+
+        else:
+            user.delete()
+            return Response(student_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

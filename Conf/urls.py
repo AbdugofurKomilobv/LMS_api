@@ -65,7 +65,11 @@ urlpatterns = [
    path('auth/',include('auth.urls',namespace='auth')),
 
 #     Teacher
-    path('teacher/',include('teacher_url.teacher_urls'))
+    path('teacher/',include('teacher_url.teacher_urls')),
+
+#  Student
+
+    path('student/',include('student_urls.student_url'))
 
 
 

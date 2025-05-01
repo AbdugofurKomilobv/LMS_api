@@ -49,7 +49,7 @@ class ParentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Parent
-        fields = ('id','name','surname','address','phone','description','students')
+        fields = ('id','name','surname','phone','description','students')
 
 # =======================================================================
 
