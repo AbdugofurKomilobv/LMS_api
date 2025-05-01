@@ -17,5 +17,6 @@ router.register(r'table',TableViewSet, basename='table')
 
 urlpatterns = [
     path('', include(router.urls)),
-
+    path('table-type/',TableTypeView.as_view()),
+    path('table-type/<int:pk>/',TableTypeDetailView.as_view())
 ]

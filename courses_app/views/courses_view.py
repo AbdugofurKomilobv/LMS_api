@@ -220,13 +220,6 @@ class GetGroupByIds(APIView):
 
 
 
-
-
-
-# Subject
-
-
-
 # Course 
 class CourseViewSet(viewsets.ViewSet):
     permission_classes = [AdminUser]
@@ -326,13 +319,73 @@ class TableViewSet(viewsets.ViewSet):
 # ===========================================================================================================
 
 
+class TableTypeView(APIView):
+    permission_classes = [AdminOrOwner]
 
+    @swagger_auto_schema(request_body=TableTypeSerializer)
+    def post(self,request):
+        serializer = TableTypeSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=201)
+        return Response(serializer.errors,status=400)
+    
+    def get(self,request):
+        model = TableType.objects.all()
+        serializer = TableTypeSerializer(model,many=True)
+        return Response(serializer.data,status=200)
+    
+class TableTypeDetailView(APIView):
+    @swagger_auto_schema(request_body=TableTypeSerializer)
+    def put(self,request,pk):
+        table = get_object_or_404(TableType,pk=pk)
+        serializer = TableTypeSerializer(table,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data,status=200)
+        return Response(serializer.errors,status=400)
+    
+    def delete(self,request,pk):
+        table = get_object_or_404(TableType,pk=pk)
+        table.delete()
+        return Response(status=204)
 
 
 
     
 
-    
+class GroupStudentsAPIView(APIView):
+    def get(self, request, pk):
+        try:
+            group = Group.objects.get(id=pk)
+        except Group.DoesNotExist:
+            return Response({"error": "Group not found"}, status=404)
+
+        # related_name orqali group_student orqali tegishli studentlarni olish
+        students = group.group_student.all()
+        teachers = group.teacher.all()
+        teacher_data = [
+            {
+                'full_name':t.user.full_name
+            }
+            for t in teachers
+        ]
+        student_data = [
+            {
+                "full_name": student.user.full_name,
+                "phone": student.user.phone
+            }
+            for student in students
+        ]
+
+        return Response({
+            "group_id": group.id,
+            "group_title": group.title,
+            "teacher":teacher_data,
+            "student_count": students.count(),
+            "students": student_data
+        })
+
 
 
 

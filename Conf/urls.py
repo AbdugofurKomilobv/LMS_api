@@ -49,9 +49,6 @@ urlpatterns = [
     path('group/', include('Group_urls.group_urls', namespace='group')),
    # table jadval uchun api
    path('table/',include('table_url.table_urls',namespace='table')),
-   # homevork uchun api
-   path('homeworks/',include('homevork_url.homevork_urls',namespace='homevork')),
-
    # user_app
    path('user/',include('user_app.urls',namespace='user')),
 

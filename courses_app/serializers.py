@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-from courses_app.models import Group, Course, Table, TableType,Lesson,Attendance
+from courses_app.models import Group, Course, Table, TableType
 from user_app.models import Student
 
 
@@ -66,46 +66,3 @@ class GroupAddTeacher(serializers.Serializer):
 # =====================================================
 
 
-class LessonSerializer(serializers.ModelSerializer):
-    kelgan_studentlar = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.all(), many=True, write_only=True
-    )
-    sababli_studentlar = serializers.ListField(
-        child=serializers.DictField(), write_only=True
-    )
-
-    class Meta:
-        model = Lesson
-        fields = [
-            "group", "title", "date", "table",
-            "kelgan_studentlar", "sababli_studentlar"
-        ]
-
-    def create(self, validated_data):
-        kelgan_studentlar = validated_data.pop('kelgan_studentlar', [])
-        sababli_studentlar = validated_data.pop('sababli_studentlar', [])
-
-        lesson = Lesson.objects.create(**validated_data)
-
-        # Kelganlar uchun attendance yaratish
-        for student in kelgan_studentlar:
-            Attendance.objects.create(
-                lesson=lesson,
-                student=student,
-                is_present=True
-            )
-
-        # Sababli kelmaganlar uchun attendance yaratish
-        for item in sababli_studentlar:
-            student_id = item.get('id')
-            reason = item.get('reason')
-            student = Student.objects.get(id=student_id)
-
-            Attendance.objects.create(
-                lesson=lesson,
-                student=student,
-                is_present=False,
-                reason=reason
-            )
-
-        return lesson

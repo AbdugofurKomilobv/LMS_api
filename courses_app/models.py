@@ -61,7 +61,7 @@ class Table(BaseModel):
 class Group(BaseModel):
     title = models.CharField(max_length=100)
     teacher = models.ManyToManyField("user_app.Teacher",related_name='groups',blank=True)
-    students = models.ManyToManyField("user_app.Student", related_name="groups")
+    # students = models.ManyToManyField("user_app.Student", related_name="groups")
     course = models.ForeignKey('Course',on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     description = models.TextField(null=True,blank=True)
@@ -76,4 +76,3 @@ class Group(BaseModel):
         verbose_name_plural = 'Groups'
 
 # ==================================================================
-

@@ -14,4 +14,5 @@ router.register(r'courses',CourseViewSet, basename='courses')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('group-students/<int:pk>',GroupStudentsAPIView.as_view())
 ]

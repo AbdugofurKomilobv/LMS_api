@@ -19,7 +19,7 @@ from courses_app.models import Group
 from courses_app.serializers import GroupSerializer
 from user_app.serializers import TeacherSerializer, UserSerializer, StudentSerializer, UserAndTeacherserializer, \
     UserAndStudentSerializer, ParentSerializer, UserAllSerializer, GetStudentByIdSerializer, \
-    GetTeachersByIdsSerializer, SuperUserSerializer
+    GetTeachersByIdsSerializer, SuperUserSerializer,StudentCreateSerializer
 from user_app.models import Teacher,Student,User,Parent
 
 
@@ -233,59 +233,22 @@ class GetStudenstByIds(APIView):
 
 # Student yaratish
 class CreateStudentAPIView(APIView):
-    permission_classes = [AdminUser]
-
-    @swagger_auto_schema(request_body=UserAndStudentSerializer)
+    @swagger_auto_schema(request_body=StudentCreateSerializer)
     def post(self, request):
-        user_data = request.data.get('user', {})
-        user_serializer = UserSerializer(data=user_data)
-
-        if user_serializer.is_valid():
-            user = user_serializer.save(is_student=True)
-        else:
-            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        student_data = request.data.get('student', {})
-        student_serializer = StudentSerializer(data=student_data)
-
-        if student_serializer.is_valid():
-            phone = user_data.get('phone')
-            # Userni phone orqali olish
-            user_s = User.objects.filter(phone=phone).first()
-
-            if user_s:  # Agar user mavjud bo'lsa
-                student_serializer.validated_data['user'] = user_s
-                student = student_serializer.save()
-            else:
-                user.delete()  # Foydalanuvchi topilmasa, uni o'chirib tashlash
-                return Response({"error": "User with this phone number does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            user.delete()
-            return Response(student_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        # Parent ma'lumotlarini olish
-        parent_data = request.data.get('parent', {})
-        parent_serializer = ParentSerializer(data=parent_data)
-
-        if parent_serializer.is_valid():
-            parent = parent_serializer.save()
-            parent.students.add(student)  # Studentni parentga qo'shish
-            return Response(parent_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            user.delete()  # Agar parentni saqlashda xato bo'lsa, userni o'chirish
-            return Response(parent_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+        serializer = StudentCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            student = serializer.save()
+            return Response({"message": "Student created successfully", "student_id": student.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# =====================================
 class StudentGroupsAPIView(APIView):
+    
     permission_classes = [AdminOrOwner]
+
     def get(self, request, student_id):
-        try:
-            student = Student.objects.get(id=student_id)
-        except Student.DoesNotExist:
-            return Response({"error": "Student not found"}, status=404)
-
-        groups = Group.objects.filter(students=student)
+        student = get_object_or_404(Student, id=student_id)
+        groups = student.group.all()  # <-- Bu `related_name="groups"` asosida ishlaydi
         serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data)
 
-        return Response(serializer.data, status=200)
 
