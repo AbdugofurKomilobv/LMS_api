@@ -10,9 +10,9 @@ app_name = 'courses'
 
 router = DefaultRouter()
 
-router.register('ustoz uy vazifasi',HomeworkViewSet, basename='homework')
-router.register('uy vazifasini-korib chiqish',HomeworkReviewViewSet, basename='homework-reviews')
-router.register('student uy vazifasi - topshiriqlari',HomeworkSubmissionViewSet, basename='homework-submissions')
+# router.register('ustoz uy vazifasi',HomeworkViewSet, basename='homework')
+# router.register('uy vazifasini-korib chiqish',HomeworkReviewViewSet, basename='homework-reviews')
+# router.register('student uy vazifasi - topshiriqlari',HomeworkSubmissionViewSet, basename='homework-submissions')
 
 urlpatterns = [
     path('', include(router.urls)),

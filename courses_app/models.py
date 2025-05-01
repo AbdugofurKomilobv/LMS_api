@@ -1,7 +1,7 @@
 from django.db import models
 
 
-from user_app.models import Teacher
+from user_app.models import Teacher,Student
 from common_app.models import BaseModel
 
 
@@ -20,18 +20,7 @@ class Course(BaseModel):
 
 # ============================================
 
-class Subject(BaseModel):
-    title = models.CharField(max_length=50)
-    description = models.TextField(null=True, blank=True)
 
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = 'Subject'
-        verbose_name_plural = 'Subjects'
-
-# ======================================================
 
 # Jadval turi modeli
 class TableType(BaseModel):
@@ -71,8 +60,9 @@ class Table(BaseModel):
 
 class Group(BaseModel):
     title = models.CharField(max_length=100)
-    teacher = models.ManyToManyField("user_app.Teacher",related_name='groups',null=True,blank=True)
-    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='groups')
+    teacher = models.ManyToManyField("user_app.Teacher",related_name='groups',blank=True)
+    students = models.ManyToManyField("user_app.Student", related_name="groups")
+    course = models.ForeignKey('Course',on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     description = models.TextField(null=True,blank=True)
     table = models.ForeignKey('Table',on_delete=models.SET_NULL,null=True,blank=True,related_name='groups')
@@ -86,51 +76,51 @@ class Group(BaseModel):
         verbose_name_plural = 'Groups'
 
 # ==================================================================
-# O'quvchilarga uyga vazifa berish uchun mo'ljallangan model.
-# Vazifa nomi, tavsifi, kurs, guruh va o'qituvchi bilan bog'lanadi.
 
-class Homework(BaseModel):
+class Lesson(BaseModel):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=255)
-    description = models.TextField(null=True,blank=True)
-    course = models.ForeignKey('courses_app.Course',on_delete=models.CASCADE,related_name='homeworks')
-    group = models.ForeignKey('courses_app.Group',on_delete=models.CASCADE,related_name='homeworks')
-    teacher = models.ForeignKey('user_app.Teacher',on_delete=models.CASCADE,related_name='homeworks')
+    date = models.DateField()
+    table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    descriptions = models.TextField(blank=True, null=True)
+
+    kelgan_studentlar = models.ManyToManyField(
+        'user_app.Student', related_name='kelgan_darslar', blank=True
+    )
+    sababli_studentlar = models.ManyToManyField(
+        'user_app.Student', related_name='sababli_darslar', blank=True
+    )
+
+    def teacher(self):
+        # Group'dan ustozlarni olish
+        return self.group.teacher.all() if self.group.teacher.exists() else None
+
+    def start_time(self):
+        # Jadvaldan boshlanish vaqtini olish
+        return self.table.start_time if self.table else None
+
+    def end_time(self):
+        # Jadvaldan tugash vaqtini olish
+        return self.table.finish_time if self.table else None
+
+    def is_active(self):
+        # Guruhning faolligini tekshirish
+        return self.group.active
 
     def __str__(self):
-        return f"{self.title} - {self.group.title}"
-    
+        return f"{self.group} - {self.title} ({self.date})"
+
+
+    def __str__(self):
+        return f"{self.group} - {self.title} ({self.date})"
+
+class Attendance(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="attendances")
+    student = models.ForeignKey('user_app.Student', on_delete=models.CASCADE, related_name='course_attendances')
+    is_present = models.BooleanField()  # True = kelgan, False = sababli
+
     class Meta:
-        verbose_name = 'Homework'
-        verbose_name_plural = 'Homeworks'
-
-# ============================================================
-# Talaba tomonidan topshirilgan uyga vazifa faylini va uning tekshirilganligini kuzatish uchun mo'ljallangan model
-
-class HomeworkSubmission(BaseModel):
-    homework = models.ForeignKey(Homework,on_delete=models.CASCADE,related_name='submissions')
-    student = models.ForeignKey('user_app.Student',on_delete=models.CASCADE, related_name='submissions')
-    link = models.CharField(max_length=255)
-    is_checked = models.BooleanField(default=False)
+        unique_together = ('lesson', 'student')  # Bitta darsda bitta student faqat bir marta yoziladi
 
     def __str__(self):
-        return f"{self.student.user.full_name} -- {self.homework.title}"
-    class Meta:
-        verbose_name = 'Homework Submission'
-        verbose_name_plural = 'Homework Submissions'
-# ===================================================================
-
-# Bu model o'qituvchi tomonidan talabalar topshirgan uyga vazifalarini tekshirish va baholash uchun ishlatiladi.
-# Baholashda sharh va baho saqlanadi.
-class HomeworkReview(BaseModel):
-    submission = models.OneToOneField(HomeworkSubmission,on_delete=models.CASCADE,related_name='review')
-    teacher = models.ForeignKey('user_app.Teacher',on_delete=models.CASCADE,related_name='review')
-    comment = models.TextField(null=True,blank=True)
-    grade = models.PositiveIntegerField(null=True,blank=True)
-
-
-    def __str__(self):
-        return f"Tekshirish {self.submission.student.user.full_name} - {self.submission.homework.title}"
-
-
-
-
+        return f"{self.student.full_name} - {'Keldi' if self.is_present else 'Sababli'}"

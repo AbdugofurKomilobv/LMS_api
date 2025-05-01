@@ -11,8 +11,7 @@ from rest_framework import status, generics, viewsets
 from drf_yasg.utils import swagger_auto_schema
 
 
-from attendance_app.models import Attendance
-from attendance_app.serializers import AttendanceSerializer
+
 from common_app.permissions import AdminUser, AdminOrOwner, AdminOrTeacher, AdminOrStudent
 from common_app.pagination import Pagination, StudentAttendancePagination
 
@@ -237,36 +236,56 @@ class CreateStudentAPIView(APIView):
     permission_classes = [AdminUser]
 
     @swagger_auto_schema(request_body=UserAndStudentSerializer)
-    def post(self,request):
-        user_data = request.data.get('user',{})
+    def post(self, request):
+        user_data = request.data.get('user', {})
         user_serializer = UserSerializer(data=user_data)
 
         if user_serializer.is_valid():
-            user = user_serializer.save(is_student = True)
+            user = user_serializer.save(is_student=True)
         else:
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-
-        student_data = request.data.get('student',{})
+        student_data = request.data.get('student', {})
         student_serializer = StudentSerializer(data=student_data)
 
         if student_serializer.is_valid():
             phone = user_data.get('phone')
-            user_s = User.objects.get(phone=phone)
-            student_serializer.validated_data['user'] = user_s
-            student = student_serializer.save()
+            # Userni phone orqali olish
+            user_s = User.objects.filter(phone=phone).first()
+
+            if user_s:  # Agar user mavjud bo'lsa
+                student_serializer.validated_data['user'] = user_s
+                student = student_serializer.save()
+            else:
+                user.delete()  # Foydalanuvchi topilmasa, uni o'chirib tashlash
+                return Response({"error": "User with this phone number does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             user.delete()
-            return Response(student_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(student_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # Parent ma'lumotlarini olish
         parent_data = request.data.get('parent', {})
         parent_serializer = ParentSerializer(data=parent_data)
 
         if parent_serializer.is_valid():
             parent = parent_serializer.save()
-            parent.students.add(student)
+            parent.students.add(student)  # Studentni parentga qo'shish
             return Response(parent_serializer.data, status=status.HTTP_201_CREATED)
-
         else:
-            user.delete()
-            return Response(student_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            user.delete()  # Agar parentni saqlashda xato bo'lsa, userni o'chirish
+            return Response(parent_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StudentGroupsAPIView(APIView):
+    permission_classes = [AdminOrOwner]
+    def get(self, request, student_id):
+        try:
+            student = Student.objects.get(id=student_id)
+        except Student.DoesNotExist:
+            return Response({"error": "Student not found"}, status=404)
+
+        groups = Group.objects.filter(students=student)
+        serializer = GroupSerializer(groups, many=True)
+
+        return Response(serializer.data, status=200)
+

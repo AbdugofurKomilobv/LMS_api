@@ -1,15 +1,11 @@
 from django.contrib import admin
 from .models import (
     Course, TableType, Table,
-    Group, Homework,
-    HomeworkSubmission, HomeworkReview,Subject
+    Group
 )
 
 
-@admin.register(Subject)
-class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('title',)
-    search_fields = ('title',)
+
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -38,21 +34,3 @@ class GroupAdmin(admin.ModelAdmin):
     list_filter = ('active',)
 
 
-@admin.register(Homework)
-class HomeworkAdmin(admin.ModelAdmin):
-    list_display = ('title', 'course', 'group', 'teacher')
-    search_fields = ('title',)
-    list_filter = ('course', 'group', 'teacher')
-
-
-@admin.register(HomeworkSubmission)
-class HomeworkSubmissionAdmin(admin.ModelAdmin):
-    list_display = ('student', 'homework', 'is_checked')
-    list_filter = ('is_checked', 'homework')
-
-
-@admin.register(HomeworkReview)
-class HomeworkReviewAdmin(admin.ModelAdmin):
-    list_display = ('submission', 'teacher', 'grade')
-    list_filter = ('grade', 'teacher')
-    search_fields = ('submission__student__user__full_name',)

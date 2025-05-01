@@ -8,12 +8,12 @@ from rest_framework.views import APIView
 
 
 
-from courses_app.models import Group,Subject,Course,Table,Homework,TableType,HomeworkSubmission,HomeworkReview
+from courses_app.models import Group,Course,Table,TableType
 from common_app.permissions import AdminOrOwner,AdminOrStudent,AdminOrTeacher,AdminUser
 from common_app.pagination import Pagination
-from courses_app.serializers import GroupSerializer, GroupAddStudent, GroupAddTeacher, SubjectSerializer, \
+from courses_app.serializers import GroupSerializer, GroupAddStudent, GroupAddTeacher, \
     CourseSerializer, TableSerializer, TableTypeSerializer, RemoveStudentFromGroupSerializer, \
-    RemoveTeacherFromGroupSerializer, HomeworkSerializer, HomeworkSubmissionSerializer, HomeworkReviewSerializer, \
+    RemoveTeacherFromGroupSerializer, \
     GetGroupByIdsSerializer
 from user_app.models import Teacher,Student
 
@@ -224,49 +224,6 @@ class GetGroupByIds(APIView):
 
 
 # Subject
-class SubjectViewSet(viewsets.ViewSet):
-    permission_classes = [AdminUser]
-     
-    #  toliq subject larni olish
-    def list(self,request):
-        subject = Subject.objects.all()
-        paginator = Pagination()
-        result_page = paginator.paginate_queryset(subject,request)
-        serializer = SubjectSerializer(result_page,many=True)
-        return Response(serializer.data)
-    # subjectni id si boyicha olish
-    def retrieve(self,request,pk=None):
-        subject = get_object_or_404(Subject,pk=pk)
-        serializer = SubjectSerializer(subject)
-        return Response(serializer.data)
-    # subject yaratish
-    @action(detail=False,methods=['post'],url_path='create/subject')
-    @swagger_auto_schema(request_body=SubjectSerializer)
-    def create_subject(self,requst):
-        serializer = SubjectSerializer(data = requst.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,status=201)
-        return Response(serializer.errors,status=400)
-    
-    # subjetc o'zgartirish id si boyicha 
-    @action(detail=True,methods=['put'],url_path='update/subjetc')
-    @swagger_auto_schema(request_body=SubjectSerializer)
-    def update_subject(self,request,pk=None):
-        subject = get_object_or_404(Subject,pk=pk)
-        serializer = SubjectSerializer(subject,data = request.data,partial = True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status":True,"detail":"Subject o'zgartirildi ",'subject':serializer.data},status=200)
-        return Response(serializer.errors,status=400)
-    
-    @action(detail=True,methods=['delete'],url_path='delete/subject')
-    def delete_subjetc(self,request,pk=None):
-        subjetc = get_object_or_404(Subject,pk=pk)
-        subjetc.delete()
-        return Response({"status":True, "detatil": "Subject muaffaqiyatli uchirildi"},status=204)
-    
-# =====================================================================================================
 
 
 
@@ -370,168 +327,6 @@ class TableViewSet(viewsets.ViewSet):
 
 
 
-# Homevork
-class HomeworkViewSet(viewsets.ViewSet):
-    permission_classes = [AdminOrTeacher]
-
-    def list(self, request):
-        homeworks = Homework.objects.all()
-        paginator = Pagination()
-        result_page = paginator.paginate_queryset(homeworks, request)
-        serializer = HomeworkSerializer(result_page, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        homework = get_object_or_404(Homework, pk=pk)
-        serializer = HomeworkSerializer(homework)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['post'], url_path='create/homework')
-    @swagger_auto_schema(request_body=HomeworkSerializer)
-    def create_homework(self, request):
-        serializer = HomeworkSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                teacher = request.user.teacher
-            except Teacher.DoesNotExist:
-                return Response(
-                    {"detail": "Foydalanuvchiga biriktirilgan teacher mavjud emas."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            serializer.save(teacher=teacher)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['put'], url_path='update/homework')
-    @swagger_auto_schema(request_body=HomeworkSerializer)
-    def update_homework(self, request, pk=None):
-        homework = get_object_or_404(Homework, pk=pk)
-        serializer = HomeworkSerializer(homework, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['delete'], url_path='delete/homework')
-    def delete_homework(self, request, pk=None):
-        homework = get_object_or_404(Homework, pk=pk)
-        homework.delete()
-        return Response(
-            {'status': True, 'detail': 'Homework muaffaqiyatli o‘chirildi'},
-            status=status.HTTP_204_NO_CONTENT
-        )
-
-# ===============================================================================================
-
-
-
-# Uyga vazifani tekshieish
-class HomeworkReviewViewSet(viewsets.ViewSet):
-    permission_classes = [AdminOrTeacher]
-
-    def list(self, request):
-        homeworkreviews = HomeworkReview.objects.all()
-        paginator = Pagination()
-        result_page = paginator.paginate_queryset(homeworkreviews, request)
-        serializer = HomeworkReviewSerializer(result_page, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        homeworkreview = get_object_or_404(HomeworkReview, pk=pk)
-        serializer = HomeworkReviewSerializer(homeworkreview)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['post'], url_path='create/homework-review')
-    @swagger_auto_schema(request_body=HomeworkReviewSerializer)
-    def create_homeworkreview(self, request):
-        serializer = HomeworkReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                teacher = request.user.teacher
-            except Teacher.DoesNotExist:
-                return Response(
-                    {"detail": "Foydalanuvchiga biriktirilgan teacher mavjud emas."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            serializer.save(teacher=teacher)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['put'], url_path='update/homework-review')
-    @swagger_auto_schema(request_body=HomeworkReviewSerializer)
-    def update_homeworkreview(self, request, pk=None):
-        homeworkreview = get_object_or_404(HomeworkReview, pk=pk)
-        serializer = HomeworkReviewSerializer(homeworkreview, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['delete'], url_path='delete/homework-review')
-    def delete_homeworkreview(self, request, pk=None):
-        homeworkreview = get_object_or_404(HomeworkReview, pk=pk)
-        homeworkreview.delete()
-        return Response(
-            {'status': True, 'detail': 'HomeworkReview muaffaqiyatli o‘chirildi'},
-            status=status.HTTP_204_NO_CONTENT
-        )
-   
-
-
-
-# ===============================================================================================================
-
-
-#HomeworkSubmission  uy vazifasini topshirish
-class HomeworkSubmissionViewSet(viewsets.ViewSet):
-    permission_classes = [AdminOrStudent]
-
-    def list(self, request):
-        homeworksubmissions = HomeworkSubmission.objects.all()
-        paginator = Pagination()
-        result_page = paginator.paginate_queryset(homeworksubmissions, request)
-        serializer = HomeworkSubmissionSerializer(result_page, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        homeworksubmission = get_object_or_404(HomeworkSubmission, pk=pk)
-        serializer = HomeworkSubmissionSerializer(homeworksubmission)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['post'], url_path='create/homework-submission')
-    @swagger_auto_schema(request_body=HomeworkSubmissionSerializer)
-    def create_homeworksubmission(self, request):
-        serializer = HomeworkSubmissionSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                student = request.user.student
-            except Student.DoesNotExist:
-                return Response(
-                    {"detail": "Foydalanuvchiga biriktirilgan student mavjud emas."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            serializer.save(student=student)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['put'], url_path='update/homework-submission')
-    @swagger_auto_schema(request_body=HomeworkSubmissionSerializer)
-    def update_homeworksubmission(self, request, pk=None):
-        homeworksubmission = get_object_or_404(HomeworkSubmission, pk=pk)
-        serializer = HomeworkSubmissionSerializer(homeworksubmission, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=['delete'], url_path='delete/homework-submission')
-    def delete_homeworksubmission(self, request, pk=None):
-        homeworksubmission = get_object_or_404(HomeworkSubmission, pk=pk)
-        homeworksubmission.delete()
-        return Response(
-            {'status': True, 'detail': 'HomeworkSubmission muaffaqiyatli o‘chirildi'},
-            status=status.HTTP_204_NO_CONTENT
-        )
 
 
 

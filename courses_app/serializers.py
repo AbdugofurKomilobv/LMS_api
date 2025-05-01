@@ -1,13 +1,14 @@
 from rest_framework import serializers
 
 
-from courses_app.models import Group, Subject, Course, Table, TableType, Homework, HomeworkSubmission, HomeworkReview
+from courses_app.models import Group, Course, Table, TableType,Lesson,Attendance
+from user_app.models import Student
 
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = "__all__"
+        fields = ('title','teacher','active','table','course')
 
 # Oddiy (non-model) serializer yaratilyapti, u bir nechta group idlarini olish uchun ishlatiladi.
 class GetGroupByIdsSerializer(serializers.Serializer):
@@ -18,10 +19,7 @@ class GetGroupByIdsSerializer(serializers.Serializer):
 
 
 
-class SubjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Subject
-        fields = '__all__'
+
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -40,39 +38,6 @@ class TableTypeSerializer(serializers.ModelSerializer):
         model = TableType
         fields = '__all__'
 
-# Homework modeliga asoslangan serializer
-class HomeworkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Homework
-        fields = '__all__'
-             # teacher maydonini faqat o‘qish (read-only) uchun qiladi,
-        # ya'ni foydalanuvchi API orqali bu maydonni o‘zgartira olmaydi,
-        # lekin ma'lumotni ko‘rishi mumkin (masalan, GET so‘rovida)
-        extra_kwargs = {'teacher':{'read_only':True}}
-
-
-# HomeworkSubmission modeliga asoslangan serializer
-class HomeworkSubmissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HomeworkSubmission  # Modelga bog'lanmoqda
-
-        # Barcha maydonlarni serializerda ko‘rsatadi
-        fields = '__all__'
-
-        # extra_kwargs yordamida ayrim maydonlarga maxsus cheklovlar qo‘yiladi:
-        extra_kwargs = {
-            'student': {'read_only': True},     # student maydoni faqat o‘qish uchun, foydalanuvchi API orqali bu maydonni o‘zgartira olmaydi
-            'is_checked': {'read_only': True}   # is_checked ham read-only: odatda bu maydonni tekshiruvchi (teacher) o‘zgartiradi
-        }
-
-
-class HomeworkReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HomeworkReview
-        fields = '__all__'
-        extra_kwargs = {
-            'teacher': {'read_only': True}
-        }
 
 
 # Talabani guruhdan chiqarish uchun foydalaniladigan serializer
@@ -96,3 +61,51 @@ class GroupAddStudent(serializers.Serializer):
 class GroupAddTeacher(serializers.Serializer):
     # Foydalanuvchidan o'qituvchining ID raqami olinadi
     teacher_id = serializers.IntegerField()  # Qo‘shiladigan teacher'ning ID raqami
+
+
+# =====================================================
+
+
+class LessonSerializer(serializers.ModelSerializer):
+    kelgan_studentlar = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.all(), many=True, write_only=True
+    )
+    sababli_studentlar = serializers.ListField(
+        child=serializers.DictField(), write_only=True
+    )
+
+    class Meta:
+        model = Lesson
+        fields = [
+            "group", "title", "date", "table",
+            "kelgan_studentlar", "sababli_studentlar"
+        ]
+
+    def create(self, validated_data):
+        kelgan_studentlar = validated_data.pop('kelgan_studentlar', [])
+        sababli_studentlar = validated_data.pop('sababli_studentlar', [])
+
+        lesson = Lesson.objects.create(**validated_data)
+
+        # Kelganlar uchun attendance yaratish
+        for student in kelgan_studentlar:
+            Attendance.objects.create(
+                lesson=lesson,
+                student=student,
+                is_present=True
+            )
+
+        # Sababli kelmaganlar uchun attendance yaratish
+        for item in sababli_studentlar:
+            student_id = item.get('id')
+            reason = item.get('reason')
+            student = Student.objects.get(id=student_id)
+
+            Attendance.objects.create(
+                lesson=lesson,
+                student=student,
+                is_present=False,
+                reason=reason
+            )
+
+        return lesson
