@@ -320,7 +320,7 @@ class TableViewSet(viewsets.ViewSet):
 
 
 class TableTypeView(APIView):
-    permission_classes = [AdminOrOwner]
+    permission_classes = [AdminUser]
 
     @swagger_auto_schema(request_body=TableTypeSerializer)
     def post(self,request):
@@ -355,6 +355,7 @@ class TableTypeDetailView(APIView):
     
 
 class GroupStudentsAPIView(APIView):
+    permission_classes = [AdminUser]
     def get(self, request, pk):
         try:
             group = Group.objects.get(id=pk)
