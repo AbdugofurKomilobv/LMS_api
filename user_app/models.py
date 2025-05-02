@@ -48,6 +48,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)    
 

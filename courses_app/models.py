@@ -60,8 +60,8 @@ class Table(BaseModel):
 
 class Group(BaseModel):
     title = models.CharField(max_length=100)
-    teacher = models.ManyToManyField("user_app.Teacher",related_name='groups',blank=True)
-    # students = models.ManyToManyField("user_app.Student", related_name="groups")
+    teacher = models.ForeignKey("user_app.Teacher", related_name='groups', on_delete=models.CASCADE, blank=True, null=True)  # O'zgartirish
+    
     course = models.ForeignKey('Course',on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     description = models.TextField(null=True,blank=True)

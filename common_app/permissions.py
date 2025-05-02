@@ -95,3 +95,20 @@ class IsAdminOrTeacher(BasePermission):
 
         # Teacher guruh ichida bormi, tekshiramiz
         return teacher in group.teacher.all()
+    
+
+
+# homework_app/permissions.py
+
+
+
+class IsTeacher(BasePermission):
+    def has_permission(self, request, view):
+        print(f"Request user: {request.user}")  # Konsolga chiqarish
+        return hasattr(request.user, 'teacher')
+
+
+
+class IsStudent(BasePermission):
+    def has_permission(self, request, view):
+        return hasattr(request.user, 'student')

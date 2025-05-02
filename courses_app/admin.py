@@ -30,7 +30,5 @@ class TableAdmin(admin.ModelAdmin):
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('title', 'active')
     search_fields = ('title',)
-    filter_horizontal = ('teacher',)
-    list_filter = ('active',)
-
+    
 

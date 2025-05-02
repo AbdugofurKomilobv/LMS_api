@@ -5,14 +5,14 @@ from .models import User, Student, Teacher, Parent
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('phone', 'full_name', 'is_admin', 'is_teacher', 'is_student', 'is_active')
+    list_display = ('phone', 'full_name', 'is_admin', 'is_teacher', 'is_student', 'is_active','is_superuser')
     list_filter = ('is_admin', 'is_teacher', 'is_student', 'is_active')
     search_fields = ('phone', 'full_name')
     ordering = ('-created',)
     fieldsets = (
         (None, {'fields': ('phone', 'password')}),
         ('Personal info', {'fields': ('full_name',)}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_admin', 'is_student', 'is_teacher', 'groups', 'user_permissions')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_admin', 'is_superuser','is_student', 'is_teacher', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login',)}),
     )
     add_fieldsets = (
