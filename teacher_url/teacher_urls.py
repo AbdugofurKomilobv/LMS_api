@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from user_app.views import TeacherListView,TeacherUpdateView,TeacherRetrieveAPIView,GetTeacherByIds,TeacherCreateView,TeacherGrouView,TeacherGroupDetailAPIView
 
-app_name = 'users'
+
 
 router = DefaultRouter()
 # router.register(r'parents', ParentViewSet, basename='parent')

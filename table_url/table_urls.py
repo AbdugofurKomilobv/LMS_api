@@ -5,7 +5,8 @@ from django.urls import path, include
 
 
 from courses_app.views import *
-app_name = 'courses'
+
+app_name = 'table_url'
 
 
 router = DefaultRouter()

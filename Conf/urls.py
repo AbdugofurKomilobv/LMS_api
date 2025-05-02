@@ -60,7 +60,10 @@ urlpatterns = [
 
 #  Student
 
-    path('student/',include('student_urls.student_url'))
+    path('student/',include('student_urls.student_url')),
+
+# lesson
+    path('lesson-attends/',include('lesson_app.urls'))
 
 
 

@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from user_app.views import StudentListView, StudentUpdateView, StudentRetrieveAPIView,GetStudenstByIds,StudentGroupsAPIView,CreateStudentAPIView
 
 
-app_name = 'users'
+
 
 urlpatterns = [
     path('students/', StudentListView.as_view(), name="all_students"),
