@@ -6,7 +6,7 @@ from django.db import models
 
 class Lesson(BaseModel):
     title = models.CharField(max_length=200)
-    group = models.ForeignKey(Group, related_name="lessons", on_delete=models.CASCADE)
+    group = models.ForeignKey('courses_app.Group', related_name="lessons_group", on_delete=models.CASCADE)
     teacher = models.ForeignKey('user_app.Teacher', related_name='lessons', on_delete=models.SET_NULL, null=True, blank=True)
     lesson_date = models.DateField(default=timezone.now)
     description = models.TextField(null=True, blank=True)

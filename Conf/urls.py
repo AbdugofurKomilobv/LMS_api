@@ -64,7 +64,11 @@ urlpatterns = [
 # Payments
     path('payments/',include('payments_app.urls')),
     # lessons_App
-    path('lessons/',include('lessons_app.urls'))
+    path('lessons/',include('lessons_app.urls')),
+#   homework_app
+    path('ustoz/',include('homework_app.urls')),
+    # student homework
+    path("o'quvchi/",include('student_homework_urls.urls'))
 
 
 ]
