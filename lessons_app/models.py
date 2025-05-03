@@ -21,4 +21,4 @@ class Attendance(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.student.user.phone} - {self.lesson.title} - {'Bor' if self.is_present else "Yo'q"}"
+        return f"{self.student.user.phone} - {self.lesson.title} - {'Bor' if self.is_present else 'Yoq'}"
