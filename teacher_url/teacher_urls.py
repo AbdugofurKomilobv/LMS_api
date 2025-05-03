@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from user_app.views import TeacherListView,TeacherUpdateView,TeacherRetrieveAPIView,GetTeacherByIds,TeacherCreateView,TeacherGrouView,TeacherGroupDetailAPIView
+from user_app.views import TeacherListView,TeacherUpdateView,TeacherRetrieveAPIView,GetTeacherByIds,TeacherCreateView,TeacherGrouView,TeacherGroupDetailAPIView,TeacherDestroyAPIView
 
 
 
@@ -16,6 +16,7 @@ urlpatterns = [
     path('create-teacher/',TeacherCreateView.as_view(),name='ctreate-teacher'),
     path('teacher-group/<int:teacher_id>/',TeacherGrouView.as_view()),
     path('teacher/teacher-group/<int:teacher_id>/<int:group_id>/', TeacherGroupDetailAPIView.as_view()),
+    path('teachers/<int:id>/delete/', TeacherDestroyAPIView.as_view(), name='teacher-delete')
 
 
 

@@ -8,7 +8,7 @@ from user_app.models import Student
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('title','teacher','active','table','course')
+        fields = ('id','title','teacher','active','table','course')
 
 # Oddiy (non-model) serializer yaratilyapti, u bir nechta group idlarini olish uchun ishlatiladi.
 class GetGroupByIdsSerializer(serializers.Serializer):

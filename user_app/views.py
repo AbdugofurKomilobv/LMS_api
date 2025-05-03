@@ -5,7 +5,7 @@ from drf_yasg import openapi
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView,UpdateAPIView,RetrieveAPIView,get_object_or_404
+from rest_framework.generics import ListAPIView,UpdateAPIView,RetrieveAPIView,get_object_or_404,DestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status, generics, viewsets
 from drf_yasg.utils import swagger_auto_schema
@@ -104,6 +104,14 @@ class TeacherRetrieveAPIView(RetrieveAPIView):
     lookup_field = 'id'
     permission_classes = [AdminOrOwner]
 
+class TeacherDestroyAPIView(DestroyAPIView):
+    queryset = Teacher.objects.all()
+    lookup_field = 'id'  # O'chirish uchun 'id' orqali qidirish
+    permission_classes = [AdminUser]  # Faqat admin o'chirishi mumkin
+
+    def perform_destroy(self, instance):
+        
+        instance.delete()
 
 # Bir nechta ustozlarni id si orqali olish
 class GetTeacherByIds(APIView):
@@ -252,3 +260,11 @@ class StudentGroupsAPIView(APIView):
         return Response(serializer.data)
 
 
+class StudentDestroyAPIView(DestroyAPIView):
+    queryset = Student.objects.all()
+    lookup_field = 'id'  # O'chirish uchun 'id' orqali qidirish
+    permission_classes = [AdminUser]  # Faqat admin o'chirishi mumkin
+
+    def perform_destroy(self, instance):
+        
+        instance.delete()

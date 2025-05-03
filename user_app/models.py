@@ -25,6 +25,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self,phone,password = None, **extra_fields):
         extra_fields.setdefault("is_staff",True)
         extra_fields.setdefault("is_admin",True)
+        extra_fields.setdefault("is_superuser",True)
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser uchun (is_staff=True) bolishi kerak")
         if extra_fields.get("is_admin") is not True:
@@ -75,7 +76,7 @@ class User(AbstractBaseUser,PermissionsMixin):
 class Student(BaseModel):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     group = models.ManyToManyField('courses_app.Group',related_name='group_student',blank=True)
-    course = models.ManyToManyField('courses_app.Course',related_name='course_student')
+    course = models.ManyToManyField('courses_app.Course',related_name='course_student',blank=True)
     description = models.TextField(blank=True)
 
 

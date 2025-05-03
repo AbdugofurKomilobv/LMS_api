@@ -61,7 +61,8 @@ urlpatterns = [
 #  Student
 
     path('student/',include('student_urls.student_url')),
-
+# Payments
+    path('payments/',include('payments_app.urls'))
 
 
 ]

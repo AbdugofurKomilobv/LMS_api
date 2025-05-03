@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'user_app',
     'common_app',
     'courses_app',
+    'payments_app',
     
     
 

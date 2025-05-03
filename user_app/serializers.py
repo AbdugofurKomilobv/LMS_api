@@ -42,6 +42,7 @@ class S_UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone','full_name','password']
+        
 class StudentCreateSerializer(serializers.ModelSerializer):
     user = S_UserSerializer()
     groups = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), many=True, required=False)
