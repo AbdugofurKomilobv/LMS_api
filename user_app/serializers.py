@@ -25,11 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TeacherSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only = True)
-   
-   
+    full_name = serializers.CharField(source='user.full_name', read_only=True)
+    phone = serializers.CharField(source='user.phone', read_only=True)
     class Meta:
         model = Teacher
-        fields = ('id','user',"course",'description')
+        fields = ('id','user','full_name','phone',"course",'description')
 
     
 

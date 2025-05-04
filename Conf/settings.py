@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*','104.248.16.164']
+ALLOWED_HOSTS = ['*','167.172.163.138']
 
 
 # Application definition

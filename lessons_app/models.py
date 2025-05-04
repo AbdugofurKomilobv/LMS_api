@@ -15,8 +15,8 @@ class Lesson(BaseModel):
         return f"{self.title} - {self.group.title} ({self.lesson_date})"
 
 class Attendance(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    student = models.ForeignKey('user_app.Student', on_delete=models.CASCADE)
+    lesson = models.ForeignKey('lessons_app.Lesson', on_delete=models.CASCADE)
     is_present = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 

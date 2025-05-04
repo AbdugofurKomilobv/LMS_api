@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from lessons_app.models import Lesson, Attendance
-from lessons_app.serializers import LessonSerializer, AttendanceSerializer
+from lessons_app.serializers import LessonSerializer, AttendanceSerializer,StudenGrouptSerializer,AttendanceStudentMeSerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -86,4 +86,31 @@ class LessonListView(APIView):
             return Response({"detail": "Bu guruhda darslar mavjud emas."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = LessonSerializer(lessons, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+# Teacher o'ziga tegishli guruxlarni o'quvchilarini korish
+class GroupStudentsView(APIView):
+    permission_classes = [IsAuthenticated, AdminOrTeacher]
+
+    @swagger_auto_schema(
+        operation_description="Get all students in a group",
+        responses={200: StudenGrouptSerializer(many=True)}
+    )
+    def get(self, request, group_id):
+        students = Student.objects.filter(group=group_id)
+        if not students.exists():
+            return Response({"detail": "Bu guruhda oquvchilar yoq."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = StudenGrouptSerializer(students, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# student o'zini davomatlarini korish
+class StudentAttendanceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        student = request.user.student  # `User`dan `Student` obyektini olamiz
+        attendance_qs = Attendance.objects.filter(student=student)
+        serializer = AttendanceStudentMeSerializer(attendance_qs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

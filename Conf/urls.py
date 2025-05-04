@@ -68,8 +68,11 @@ urlpatterns = [
 #   homework_app
     path('ustoz/',include('homework_app.urls')),
     # student homework
-    path("o'quvchi/",include('student_homework_urls.urls'))
+    path("o'quvchi/",include('student_homework_urls.urls')),
 
+    # statistika
+    path('statistika/',include('common_app.urls'))
+    
 
 ]
 
