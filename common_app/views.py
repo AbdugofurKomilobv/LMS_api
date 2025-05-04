@@ -1,14 +1,16 @@
 from django.shortcuts import render
-
+from rest_framework.response import Response
+from rest_framework import status
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from lessons_app.models import Attendance,Lesson
-from .serializers import LessonAttendanceStatsSerializer
+from .serializers import LessonAttendanceStatsSerializer,CourseTeacherSerializer
 from common_app.permissions import *
 from rest_framework.permissions import IsAuthenticated
 from homework_app.models import *
 from django.db.models import Avg
+from user_app.models import Student,Teacher
 
 
 
@@ -59,7 +61,7 @@ class LessonAttendanceStatsAPIView(APIView):
 
 # Dars bo‘yicha uyga vazifalar statistikasi ro‘yxatga qo‘shilyapti Faqat o'qtuvchi uchun 
 class LessonHomeworkStatsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,AdminOrOwner]
 
     def get(self, request):
         if not hasattr(request.user, 'teacher'):
@@ -95,3 +97,15 @@ class LessonHomeworkStatsAPIView(APIView):
 })
 
         return Response(data)
+
+
+class TeacherCourseView(APIView):
+    permission_classes = [IsAuthenticated,IsAdminOrTeacher]
+    def get(self,request,pk):
+        try:
+            teacher = Teacher.objects.get(pk=pk)
+        except Teacher.DoesNotExist:
+            return Response({'detail': 'Teaxher bot found!'},status=404)
+        course = teacher.course.all()
+        serializer = CourseTeacherSerializer(course,many=True)
+        return Response(serializer.data,status=200)

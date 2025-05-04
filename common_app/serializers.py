@@ -2,6 +2,7 @@ from collections import Counter
 from rest_framework import serializers
 from lessons_app.models import Lesson, Attendance
 from user_app.models import Student,Teacher
+from courses_app.models import Course
 
 
 class LessonAttendanceStatsSerializer(serializers.Serializer):
@@ -22,3 +23,9 @@ class LessonAttendanceStatsSerializer(serializers.Serializer):
             'present_count': attendance_count.get(True, 0),
             'absent_count': attendance_count.get(False, 0),
         }
+
+
+class CourseTeacherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id','title']
